@@ -1,2 +1,0 @@
-# apartman
-toplantı
