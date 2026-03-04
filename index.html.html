@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apartman Yönetim Rehberi — KMK</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f5f0e8;
+    --gold: #c9a84c;
+    --gold-light: #e8d5a3;
+    --rust: #b5451b;
+    --sage: #4a7c59;
+    --muted: #7a7468;
+    --card: #fffdf8;
+    --border: #ddd5c0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* Header */
+  .header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 48px 40px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    border: 2px solid rgba(201,168,76,0.2);
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    top: -20px; right: -20px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.15);
+  }
+  .header-badge {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--ink);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 2px;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(26px, 5vw, 42px);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .header h1 span { color: var(--gold); }
+  .header p {
+    color: rgba(245,240,232,0.7);
+    font-size: 14px;
+    max-width: 480px;
+    line-height: 1.6;
+  }
+  .header-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+  .meta-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--gold-light);
+  }
+  .meta-pill .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    background: var(--ink);
+    padding: 0 40px 24px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+  }
+  .prog-step {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .prog-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid rgba(201,168,76,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(201,168,76,0.5);
+    cursor: pointer;
+    transition: all 0.3s;
+    flex-shrink: 0;
+  }
+  .prog-dot.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--ink);
+  }
+  .prog-dot.done {
+    background: var(--sage);
+    border-color: var(--sage);
+    color: white;
+  }
+  .prog-dot:hover { transform: scale(1.15); }
+  .prog-line {
+    height: 1px;
+    width: 20px;
+    background: rgba(201,168,76,0.2);
+    flex-shrink: 0;
+  }
+
+  /* Main content */
+  .main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* Phase label */
+  .phase-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .phase-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 64px;
+    font-weight: 900;
+    color: var(--gold-light);
+    line-height: 1;
+    opacity: 0.5;
+  }
+  .phase-info { flex: 1; }
+  .phase-tag {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .phase-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  /* Step card */
+  .step-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .step-card:hover { box-shadow: 0 4px 20px rgba(26,26,46,0.08); }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .step-icon {
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .step-num {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .step-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .step-chevron {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--muted);
+    transition: transform 0.3s;
+  }
+  .step-chevron.open { transform: rotate(180deg); }
+
+  .step-body {
+    display: none;
+    padding: 0 20px 20px 76px;
+    border-top: 1px solid var(--border);
+    animation: fadeIn 0.2s ease;
+  }
+  .step-body.open { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .step-desc {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #3a3a4e;
+    margin-top: 14px;
+    margin-bottom: 12px;
+  }
+
+  .checklist {
+    list-style: none;
+  }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #444;
+    padding: 5px 0;
+    cursor: pointer;
+  }
+  .checklist li .check-box {
+    width: 16px; height: 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .checklist li.checked .check-box {
+    background: var(--sage);
+    border-color: var(--sage);
+    color: white;
+    font-size: 10px;
+  }
+  .checklist li.checked span { text-decoration: line-through; color: var(--muted); }
+
+  .law-note {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: rgba(201,168,76,0.08);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: #5a5030;
+    line-height: 1.5;
+  }
+  .law-note strong { color: var(--gold); }
+
+  /* Completed badge */
+  .step-done-badge {
+    display: none;
+    font-size: 10px;
+    background: var(--sage);
+    color: white;
+    border-radius: 10px;
+    padding: 2px 8px;
+    margin-left: 8px;
+    font-weight: 600;
+  }
+  .step-card.all-done .step-done-badge { display: inline-block; }
+
+  /* Nav buttons */
+  .nav-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+    justify-content: space-between;
+  }
+  .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-prev {
+    background: white;
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+  }
+  .btn-prev:hover { border-color: var(--ink); color: var(--ink); }
+  .btn-next {
+    background: var(--ink);
+    color: var(--paper);
+    flex: 1;
+  }
+  .btn-next:hover { background: #2d2d4e; transform: translateY(-1px); }
+  .btn-next:disabled { background: var(--border); color: var(--muted); cursor: default; transform: none; }
+
+  /* Summary panel */
+  .summary-panel {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 12px;
+    padding: 28px;
+    margin-top: 32px;
+  }
+  .summary-panel h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .summary-item {
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+  .summary-item .s-label { color: rgba(245,240,232,0.5); font-size: 11px; margin-bottom: 4px; }
+  .summary-item .s-val { font-weight: 600; }
+
+  /* Step colors */
+  .c-red { background: rgba(181,69,27,0.1); }
+  .c-gold { background: rgba(201,168,76,0.1); }
+  .c-blue { background: rgba(42,82,152,0.1); }
+  .c-green { background: rgba(74,124,89,0.1); }
+  .c-purple { background: rgba(120,60,140,0.1); }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .header { padding: 32px 20px 28px; }
+    .progress-bar { padding: 0 20px 20px; }
+    .main { padding: 28px 16px 60px; }
+    .step-body { padding-left: 20px; }
+    .summary-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">Kat Mülkiyeti Kanunu</div>
+  <h1>Apartman Yönetim<br><span>Adım Adım Rehberi</span></h1>
+  <p>6 dairelik apartmanlar için genel kurul, yönetici seçimi, gelir-gider takibi ve tüm yasal süreçler.</p>
+  <div class="header-meta">
+    <div class="meta-pill"><span class="dot"></span> 634 Sayılı KMK</div>
+    <div class="meta-pill"><span class="dot"></span> 6 Daire</div>
+    <div class="meta-pill"><span class="dot"></span> 5 Ana Aşama</div>
+  </div>
+</div>
+
+<div class="progress-bar" id="progressBar">
+  <!-- generated by JS -->
+</div>
+
+<div class="main">
+  <div id="phaseContainer"></div>
+
+  <div class="nav-buttons">
+    <button class="btn btn-prev" id="btnPrev" onclick="changePhase(-1)">← Önceki</button>
+    <button class="btn btn-next" id="btnNext" onclick="changePhase(1)">Sonraki Aşama →</button>
+  </div>
+
+  <div class="summary-panel" id="summaryPanel" style="display:none;">
+    <h3>📋 Tüm Aşamalara Genel Bakış</h3>
+    <div class="summary-grid">
+      <div class="summary-item"><div class="s-label">Yasal Dayanak</div><div class="s-val">KMK Madde 27–48</div></div>
+      <div class="summary-item"><div class="s-label">Yönetici Görev Süresi</div><div class="s-val">1 Yıl (uzatılabilir)</div></div>
+      <div class="summary-item"><div class="s-label">Toplantı Yeter Sayısı</div><div class="s-val">Arsa payı çoğunluğu</div></div>
+      <div class="summary-item"><div class="s-label">Olağan Genel Kurul</div><div class="s-val">Yılda 1 kez (Ocak)</div></div>
+      <div class="summary-item"><div class="s-label">Avans İsteme Hakkı</div><div class="s-val">KMK Madde 20</div></div>
+      <div class="summary-item"><div class="s-label">Denetçi Seçimi</div><div class="s-val">Zorunlu (≥8 bağımsız bölüm)</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const phases = [
+  {
+    number: "01",
+    tag: "Hazırlık Aşaması",
+    title: "Genel Kurula Hazırlık",
+    steps: [
+      {
+        icon: "📬",
+        color: "c-gold",
+        name: "Toplantı Duyurusu ve Davetiye",
+        desc: "Genel kurul toplantısı en az 15 gün önceden tüm kat maliklerine yazılı olarak bildirilmelidir. 6 dairelik apartmanda tebligat elden veya noter kanalıyla yapılabilir.",
+        items: [
+          "Toplantı tarih, saat ve yeri belirlendi",
+          "Gündem maddeleri hazırlandı",
+          "Her kat malikine yazılı davetiye gönderildi",
+          "Tebligat alındı belgesi veya imza tutanağı tutuldu",
+          "15 günlük bekleme süresi hesaplandı"
+        ],
+        law: "KMK Madde 29 — Toplantı en az 15 gün önceden bildirilmeli; ilk toplantıda çoğunluk sağlanamazsa ikinci toplantı 7 gün sonraya ertelenebilir."
+      },
+      {
+        icon: "📋",
+        color: "c-blue",
+        name: "Gündem Hazırlama",
+        desc: "Gündem maddelerini önceden netleştirmek toplantının verimli geçmesini sağlar. Yönetici seçimi, bütçe onayı, aidat tespiti mutlaka gündeme alınmalıdır.",
+        items: [
+          "Yönetici seçimi / ibra gündeme eklendi",
+          "Geçmiş dönem gelir-gider raporu hazırlandı",
+          "Yeni dönem tahmini bütçe hazırlandı",
+          "Aidat miktarı teklifi oluşturuldu",
+          "Ortak alan onarım/yatırım kalemleri eklendi"
+        ],
+        law: "KMK Madde 31 — Gündem dışı karar alınamaz; ancak tüm malikler hazırsa yeni madde eklenebilir."
+      }
+    ]
+  },
+  {
+    number: "02",
+    tag: "Genel Kurul",
+    title: "Toplantı ve Yönetici Seçimi",
+    steps: [
+      {
+        icon: "🏛️",
+        color: "c-red",
+        name: "Toplantı Açılışı ve Yoklama",
+        desc: "Toplantı başlamadan önce katılım listesi imzalatılır. Arsa payı çoğunluğunun sağlanıp sağlanmadığı kontrol edilir.",
+        items: [
+          "Katılım çizelgesi hazırlandı ve imzalatıldı",
+          "Arsa payı çoğunluğu hesaplandı",
+          "Divan heyeti (başkan + yazman) seçildi",
+          "Toplantı açık olarak ilan edildi",
+          "Çoğunluk sağlanamadıysa erteleme tutanağı tutuldu"
+        ],
+        law: "KMK Madde 30 — İlk toplantıda arsa payının yarısından fazlasının temsil edilmesi gerekir. Sağlanamazsa ikinci toplantıda bu şart aranmaz."
+      },
+      {
+        icon: "👤",
+        color: "c-green",
+        name: "Yönetici Seçimi",
+        desc: "Yönetici, kat malikleri arasından veya dışarıdan seçilebilir. Oy çokluğuyla seçim yapılır. Görev süresi genellikle 1 yıldır.",
+        items: [
+          "Aday bildirimleri alındı",
+          "Gizli veya açık oylama yöntemi kararlaştırıldı",
+          "Oylar arsa payına göre hesaplandı",
+          "Seçilen yönetici kabul beyanı verdi",
+          "Yönetici atama kararı tutanağa geçirildi"
+        ],
+        law: "KMK Madde 34 — Yönetici kat malikleri arasından seçilmek zorunda değildir. Tüzel kişi de yönetici olabilir. 8'den az bağımsız bölümde denetçi seçimi zorunlu değildir."
+      },
+      {
+        icon: "📝",
+        color: "c-purple",
+        name: "Karar Tutanağı Düzenleme",
+        desc: "Alınan tüm kararlar toplantı tutanağına geçirilir, divan başkanı ve yazman imzalar. Tutanak yasal belgedir.",
+        items: [
+          "Tüm kararlar sırasıyla tutanağa yazıldı",
+          "Oy sonuçları (kabul / ret / çekimser) belirtildi",
+          "Divan başkanı ve yazman imzaladı",
+          "Tutanak fotokopisi tüm malike verildi / duyuruldu",
+          "Asıl tutanak yöneticide muhafaza edildi"
+        ],
+        law: "KMK Madde 32 — Kararlar oy çokluğuyla alınır. Oybirliği gereken haller KMK'da ayrıca belirtilmiştir (örn. ana yapı değişiklikleri)."
+      }
+    ]
+  },
+  {
+    number: "03",
+    tag: "Mali Yönetim",
+    title: "Gelir – Gider ve Aidat Takibi",
+    steps: [
+      {
+        icon: "💰",
+        color: "c-gold",
+        name: "Aidat ve Avans Belirleme",
+        desc: "Her kat malikinin ödeyeceği aidat ve avans miktarı genel kurulda belirlenir. Arsa payına göre veya eşit pay esasıyla belirlenebilir.",
+        items: [
+          "Aylık aidat miktarı oy çokluğuyla belirlendi",
+          "Ödeme günü (her ayın kaçı) kararlaştırıldı",
+          "Gecikme faizi oranı belirlendi",
+          "Aidat ödeme tablosu her malike dağıtıldı",
+          "Banka hesabı / IBAN bilgisi duyuruldu"
+        ],
+        law: "KMK Madde 20 — Her kat maliki, ortak giderlere arsa payı oranında katılmak zorundadır. Aidat borçlusu için icra takibi başlatılabilir."
+      },
+      {
+        icon: "🧾",
+        color: "c-blue",
+        name: "Gelir – Gider Defteri Tutma",
+        desc: "Yönetici tüm gelir ve giderleri belgeye dayalı olarak kaydetmekle yükümlüdür. Makbuz ve fatura saklanmalıdır.",
+        items: [
+          "Gelir-gider defteri (veya Excel tablosu) oluşturuldu",
+          "Her ödeme için makbuz/fiş düzenlendi",
+          "Tüm fatura ve dekontlar tarih sırasıyla dosyalandı",
+          "Aylık bakiye hesaplandı ve kayıt altına alındı",
+          "Ortak gider kategorileri tanımlandı (temizlik, bakım, sigorta vb.)"
+        ],
+        law: "KMK Madde 36–38 — Yönetici işletme hesabını tutmak, giderlerin belge ve makbuzlarını 5 yıl saklamak zorundadır."
+      },
+      {
+        icon: "📊",
+        color: "c-green",
+        name: "Yıllık İşletme Projesi Hazırlama",
+        desc: "Her yıl genel kurul için gelecek döneme ait tahmini bütçe (işletme projesi) hazırlanır ve onaya sunulur.",
+        items: [
+          "Geçmiş yıl gerçek giderleri analiz edildi",
+          "Gelecek yıl tahmini gider kalemleri listelendi",
+          "Ortak alan bakım-onarım planı dahil edildi",
+          "Bina sigortası gideri bütçeye yansıtıldı",
+          "Toplam bütçe genel kurula sunuldu ve onaylandı"
+        ],
+        law: "KMK Madde 37 — Yönetici, yıllık işletme projesini genel kurula sunmak zorundadır. Onaylanmayan bütçe yürürlüğe girmez."
+      }
+    ]
+  },
+  {
+    number: "04",
+    tag: "Ortak Alanlar",
+    title: "Bakım, Onarım ve Sigorta",
+    steps: [
+      {
+        icon: "🔧",
+        color: "c-rust",
+        name: "Acil Bakım ve Onarım Kararları",
+        desc: "Ortak alanların bakımı yöneticinin görevidir. Acil onarımlar için genel kurul kararı beklenmeksizin işlem yapılabilir.",
+        items: [
+          "Asansör periyodik bakım sözleşmesi yapıldı",
+          "Çatı / su tesisatı kontrol edildi",
+          "Elektrik panosu / ortak alan aydınlatması kontrol edildi",
+          "Acil onarımlar yönetici kararıyla yapıldı ve belgelendi",
+          "Büyük onarımlar için genel kurul kararı alındı"
+        ],
+        law: "KMK Madde 35 — Yönetici, ana yapının bakım ve korunması için gerekli tedbirleri almakla görevlidir. Zorunlu acil giderler için genel kurul kararı aranmaz."
+      },
+      {
+        icon: "🛡️",
+        color: "c-blue",
+        name: "Zorunlu Deprem Sigortası (DASK)",
+        desc: "Her bağımsız bölüm için DASK yaptırılması zorunludur. Yönetici de ortak alanlar için ayrıca sigorta yaptırabilir.",
+        items: [
+          "Her daire için DASK poliçesi kontrol edildi",
+          "Bina genel sigortası (yangın, doğal afet) değerlendirildi",
+          "Asansör 3. şahıs sorumluluk sigortası yapıldı",
+          "Poliçe kopyaları dosyalandı",
+          "Yenileme tarihleri takip takvime eklendi"
+        ],
+        law: "587 Sayılı KHK — DASK tüm bina malikleri için zorunludur. Yaptırmayanlar olası afet tazminatlarından yararlanamaz."
+      }
+    ]
+  },
+  {
+    number: "05",
+    tag: "Kapanış ve Devir",
+    title: "İbra, Denetim ve Devir Teslim",
+    steps: [
+      {
+        icon: "✅",
+        color: "c-green",
+        name: "Yönetici İbrası",
+        desc: "Dönem sonunda yönetici, tüm hesapları genel kurula sunar ve ibra oylaması yapılır. İbra, yöneticiyi o döneme ait mali sorumluluklardan kurtarır.",
+        items: [
+          "Dönem sonu gelir-gider özeti hazırlandı",
+          "Kasa / banka bakiyesi belgelendi",
+          "Genel kurulda hesaplar sunuldu",
+          "İbra oylaması yapıldı ve sonucu tutanağa geçildi",
+          "İbra edilmeme halinde denetim yolu açık tutuldu"
+        ],
+        law: "KMK Madde 38 — Yönetici her takvim yılı sonunda hesap vermek zorundadır. İbra etmeme halinde kat malikleri hesapların incelenmesini talep edebilir."
+      },
+      {
+        icon: "🔄",
+        color: "c-purple",
+        name: "Devir Teslim Süreci",
+        desc: "Görev değişiminde eski yönetici tüm belge, defter, anahtar ve parayı yeni yöneticiye tutanakla teslim etmelidir.",
+        items: [
+          "Tüm gelir-gider defterleri ve belgeleri teslim edildi",
+          "Apartman kasası / hesabı yeni yöneticiye devredildi",
+          "Ortak alan anahtarları teslim edildi",
+          "Sözleşmeler (asansör, temizlik vb.) bildirildi",
+          "Devir teslim tutanağı iki tarafça imzalandı"
+        ],
+        law: "KMK Madde 40 — Görevi sona eren yönetici, süresi dolmuş olsa bile yeni yönetici atanana kadar görevine devam etmek ve devri eksiksiz yapmak zorundadır."
+      },
+      {
+        icon: "📁",
+        color: "c-gold",
+        name: "Arşiv ve Belge Saklama",
+        desc: "Apartmana ait tüm belgeler düzenli arşivlenmeli, yasal saklama sürelerine uyulmalıdır.",
+        items: [
+          "Toplantı tutanakları kronolojik dosyalandı",
+          "Fatura ve makbuzlar 5 yıl saklanmak üzere arşivlendi",
+          "Sözleşmeler ayrı bir dosyada muhafaza edildi",
+          "Dijital yedek oluşturuldu (isteğe bağlı)",
+          "Arşiv yeni yöneticiye teslim edildi"
+        ],
+        law: "Türk Borçlar Kanunu & KMK — Mali belgeler en az 5 yıl, tapu ve sözleşme belgeleri belirsiz süre saklanmalıdır."
+      }
+    ]
+  }
+];
+
+let currentPhase = 0;
+
+function buildProgressBar() {
+  const bar = document.getElementById('progressBar');
+  bar.innerHTML = '';
+  phases.forEach((p, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'prog-step';
+    const d = document.createElement('div');
+    d.className = 'prog-dot' + (i === currentPhase ? ' active' : i < currentPhase ? ' done' : '');
+    d.textContent = i < currentPhase ? '✓' : (i + 1);
+    d.onclick = () => { currentPhase = i; render(); };
+    dot.appendChild(d);
+    if (i < phases.length - 1) {
+      const line = document.createElement('div');
+      line.className = 'prog-line';
+      dot.appendChild(line);
+    }
+    bar.appendChild(dot);
+  });
+}
+
+function buildPhase() {
+  const phase = phases[currentPhase];
+  const container = document.getElementById('phaseContainer');
+  
+  let html = `
+    <div class="phase-label">
+      <div class="phase-number">${phase.number}</div>
+      <div class="phase-info">
+        <div class="phase-tag">${phase.tag}</div>
+        <div class="phase-title">${phase.title}</div>
+      </div>
+    </div>
+  `;
+
+  phase.steps.forEach((step, si) => {
+    const stepId = `step-${currentPhase}-${si}`;
+    html += `
+      <div class="step-card" id="card-${stepId}">
+        <div class="step-header" onclick="toggleStep('${stepId}')">
+          <div class="step-icon ${step.color}">${step.icon}</div>
+          <div>
+            <div class="step-num">Adım ${si + 1}</div>
+            <div class="step-name">${step.name} <span class="step-done-badge">✓ Tamamlandı</span></div>
+          </div>
+          <div class="step-chevron" id="chev-${stepId}">▼</div>
+        </div>
+        <div class="step-body" id="body-${stepId}">
+          <p class="step-desc">${step.desc}</p>
+          <ul class="checklist" id="list-${stepId}">
+            ${step.items.map((item, ii) => `
+              <li id="item-${stepId}-${ii}" onclick="toggleCheck('${stepId}', ${ii})">
+                <div class="check-box"></div>
+                <span>${item}</span>
+              </li>
+            `).join('')}
+          </ul>
+          <div class="law-note">⚖️ <div><strong>Yasal Dayanak:</strong> ${step.law}</div></div>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+  
+  // Auto-open first step
+  toggleStep(`step-${currentPhase}-0`);
+}
+
+function toggleStep(id) {
+  const body = document.getElementById('body-' + id);
+  const chev = document.getElementById('chev-' + id);
+  const isOpen = body.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.step-body').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.step-chevron').forEach(c => c.classList.remove('open'));
+  if (!isOpen) {
+    body.classList.add('open');
+    chev.classList.add('open');
+  }
+}
+
+function toggleCheck(stepId, itemIdx) {
+  const item = document.getElementById(`item-${stepId}-${itemIdx}`);
+  item.classList.toggle('checked');
+  item.querySelector('.check-box').textContent = item.classList.contains('checked') ? '✓' : '';
+  
+  // Check if all done
+  const list = document.getElementById(`list-${stepId}`);
+  const all = list.querySelectorAll('li').length;
+  const done = list.querySelectorAll('li.checked').length;
+  const card = document.getElementById(`card-${stepId}`);
+  if (done === all) card.classList.add('all-done');
+  else card.classList.remove('all-done');
+}
+
+function changePhase(dir) {
+  const newPhase = currentPhase + dir;
+  if (newPhase < 0 || newPhase >= phases.length) return;
+  currentPhase = newPhase;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function render() {
+  buildProgressBar();
+  buildPhase();
+  
+  document.getElementById('btnPrev').style.display = currentPhase === 0 ? 'none' : 'block';
+  const nextBtn = document.getElementById('btnNext');
+  if (currentPhase === phases.length - 1) {
+    nextBtn.textContent = '🎉 Tümünü Gördüm';
+    nextBtn.onclick = showSummary;
+  } else {
+    nextBtn.textContent = 'Sonraki Aşama →';
+    nextBtn.onclick = () => changePhase(1);
+  }
+  
+  document.getElementById('summaryPanel').style.display = 'none';
+}
+
+function showSummary() {
+  document.getElementById('summaryPanel').style.display = 'block';
+  document.getElementById('summaryPanel').scrollIntoView({ behavior: 'smooth' });
+}
+
+render();
+</script>
+</body>
+</html>
